@@ -53,7 +53,15 @@ func RunArtifactDownload(ctx context.Context, wk workerruntime.Runtime, a sdk.Ac
 		return res, err
 	}
 
-	regexp := regexp.MustCompile(pattern)
+	regexp, err := regexp.Compile(pattern)
+	if err != nil {
+		res.Status = sdk.StatusFail
+		res.Reason = fmt.Sprintf("Invalid pattern %s, must be a regex : %v", pattern, err)
+		log.Warning("Cannot download artifact : %s", err)
+		wk.SendLog(workerruntime.LevelError, res.Reason)
+		return res, err
+	}
+
 	wg := new(sync.WaitGroup)
 	wg.Add(len(artifacts))
 
