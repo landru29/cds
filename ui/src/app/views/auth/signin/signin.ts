@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthDriverManifest } from 'app/model/authentication.model';
 import { AuthenticationService } from 'app/service/authentication/authentication.service';
 import { finalize } from 'rxjs/operators/finalize';
-import * as zxcvbn from 'zxcvbn';
 
 @Component({
     selector: 'app-auth-signin',
@@ -26,8 +25,6 @@ export class SigninComponent implements OnInit {
     localSigninActive: boolean;
     localSignupActive: boolean;
     ldapSigninActive: boolean;
-    passwordShowError: boolean;
-    passwordLevel: number;
 
     constructor(
         private _authenticationService: AuthenticationService,
@@ -79,8 +76,8 @@ export class SigninComponent implements OnInit {
     }
 
     clickShowLocalSignup() {
-        this.passwordShowError = false;
-        this.passwordLevel = null;
+        /*this.passwordShowError = false;
+        this.passwordLevel = null;*/
         this.showSuccessSignup = false;
         this.localSigninActive = false;
         this.localSignupActive = true;
@@ -96,11 +93,12 @@ export class SigninComponent implements OnInit {
     }
 
     signup(f: NgForm) {
-        if (this.passwordLevel < 3) {
+        console.log(f.errors)
+        /*if (this.passwordLevel < 3) {
             this.passwordShowError = true;
             this._cd.markForCheck();
             return;
-        }
+        }*/
 
         this._authenticationService.localSignup(
             f.value.fullname,
@@ -136,12 +134,5 @@ export class SigninComponent implements OnInit {
 
     navigateToAskReset() {
         this._router.navigate(['/auth/ask-reset']);
-    }
-
-    onChangeSignupPassword(e: any) {
-        this.passwordShowError = false;
-        let res = zxcvbn(e.target.value);
-        this.passwordLevel = res.score;
-        this._cd.markForCheck();
     }
 }
