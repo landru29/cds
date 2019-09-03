@@ -320,7 +320,6 @@ func doAfterLogin(v cli.Values, apiURL string, res sdk.AuthConsumerSigninRespons
 		Context:               contextName,
 		Host:                  apiURL,
 		InsecureSkipVerifyTLS: insecureSkipVerifyTLS,
-		User:                  res.User.Username,
 		SessionToken:          res.Token,
 	}
 
