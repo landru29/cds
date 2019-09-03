@@ -320,7 +320,8 @@ func doAfterLogin(v cli.Values, apiURL string, res sdk.AuthConsumerSigninRespons
 		Context:               contextName,
 		Host:                  apiURL,
 		InsecureSkipVerifyTLS: insecureSkipVerifyTLS,
-		SessionToken:          res.Token,
+		Session:               res.Token,
+		// TODO yesnault: add builtin token
 	}
 
 	wdata := &bytes.Buffer{}
