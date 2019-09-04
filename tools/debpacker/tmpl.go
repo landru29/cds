@@ -52,6 +52,7 @@ chmod +x {{.SystemdServiceConfig.ExecStart}}
 
 set +e
 echo "Service installed"
+systemctl daemon-reload
 systemctl enable {{.PackageName}}
 systemctl status {{.PackageName}}
 echo "run systemctl start {{.PackageName}} to start"

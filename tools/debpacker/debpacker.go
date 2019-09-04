@@ -39,6 +39,7 @@ func New(w Writer, c Config, out string) *Packer {
 			c.SystemdServiceConfig.ExecStart = "/usr/bin/" + filepath.Base(c.BinaryFile)
 		}
 		if c.Command != "" {
+			fmt.Println(" => Command", c.Command)
 			c.SystemdServiceConfig.ExecStart = c.Command
 		}
 
@@ -156,12 +157,12 @@ func (p Packer) buildControlFile() error {
 }
 
 func (p Packer) copyBinaryFile() error {
-	path := filepath.Join(p.outputDirectory, "usr", "bin")
-	if err := p.writer.CreateDirectory(path, os.FileMode(0755)); err != nil {
+	path := filepath.Join("usr", "bin")
+	if err := p.writer.CreateDirectory(filepath.Join(p.outputDirectory, path), os.FileMode(0755)); err != nil {
 		return err
 	}
 
-	return p.writer.CopyFiles(path, os.FileMode(0644), p.config.BinaryFile)
+	return p.writer.CopyFiles(p.outputDirectory, path, os.FileMode(0644), p.config.BinaryFile)
 }
 
 func (p Packer) copyConfigurationFiles() error {
@@ -169,12 +170,12 @@ func (p Packer) copyConfigurationFiles() error {
 		return nil
 	}
 
-	path := filepath.Join(p.outputDirectory, "etc", p.config.PackageName)
-	if err := p.writer.CreateDirectory(path, os.FileMode(0755)); err != nil {
+	path := filepath.Join("etc", p.config.PackageName)
+	if err := p.writer.CreateDirectory(filepath.Join(p.outputDirectory, path), os.FileMode(0755)); err != nil {
 		return err
 	}
 
-	return p.writer.CopyFiles(path, os.FileMode(0644), p.config.ConfigurationFiles...)
+	return p.writer.CopyFiles(p.outputDirectory, path, os.FileMode(0644), p.config.ConfigurationFiles...)
 }
 
 func (p Packer) mkDirs() error {
@@ -184,7 +185,11 @@ func (p Packer) mkDirs() error {
 	}
 
 	for _, d := range p.config.Mkdirs {
-		path := filepath.Join(p.outputDirectory, "var", "lib", p.config.PackageName, d)
+		path := filepath.Join(p.outputDirectory, d)
+		if !strings.HasPrefix(d, "/") {
+			path = filepath.Join(p.outputDirectory, "var", "lib", p.config.PackageName, d)
+		}
+		fmt.Println(" => Creating directory", path)
 		if err := p.writer.CreateDirectory(path, os.FileMode(0755)); err != nil {
 			return err
 		}
@@ -198,12 +203,12 @@ func (p Packer) copyOtherFiles() error {
 		return nil
 	}
 
-	path := filepath.Join(p.outputDirectory, "var", "lib", p.config.PackageName)
-	if err := p.writer.CreateDirectory(path, os.FileMode(0755)); err != nil {
+	path := filepath.Join("var", "lib", p.config.PackageName)
+	if err := p.writer.CreateDirectory(filepath.Join(p.outputDirectory, path), os.FileMode(0755)); err != nil {
 		return err
 	}
 
-	return p.writer.CopyFiles(path, os.FileMode(0644), p.config.CopyFiles...)
+	return p.writer.CopyFiles(p.outputDirectory, path, os.FileMode(0644), p.config.CopyFiles...)
 }
 
 func (p Packer) writeSystemdServiceFile() error {
